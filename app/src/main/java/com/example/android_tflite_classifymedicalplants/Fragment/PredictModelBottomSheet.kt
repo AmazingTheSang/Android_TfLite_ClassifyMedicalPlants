@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import com.example.android_tflite_classifymedicalplants.Adapter.PlantAdapter
 import com.example.android_tflite_classifymedicalplants.Model.PredictModel
 import com.example.android_tflite_classifymedicalplants.R
 import com.example.android_tflite_classifymedicalplants.databinding.PredictBottomSheetBinding
@@ -32,6 +33,8 @@ class PredictModelBottomSheet : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         updateAppearance()
+        val adapter = PlantAdapter(requireContext(), predictModel?.listImgUrl?.toMutableList() ?: mutableListOf())
+        binding?.gridView?.adapter = adapter
     }
 
 

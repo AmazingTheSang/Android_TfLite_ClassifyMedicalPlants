@@ -10,4 +10,5 @@ class PredictModel(
     val label: String,
     val description: String = "haha",
     var confidence: Float = 0f,
+    val listImgUrl: List<String> = arrayListOf()
 ): Serializable, Parcelable

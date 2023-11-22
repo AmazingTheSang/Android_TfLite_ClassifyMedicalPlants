@@ -2,6 +2,7 @@ package com.example.android_tflite_classifymedicalplants.ModelHelper
 
 import android.content.Context
 import android.graphics.Bitmap
+import com.example.android_tflite_classifymedicalplants.Model.PlantModel
 import com.example.android_tflite_classifymedicalplants.Model.PredictModel
 import com.example.android_tflite_classifymedicalplants.ml.Model
 import org.tensorflow.lite.DataType
@@ -41,8 +42,8 @@ class ModelHelper(private val context: Context, private val imageSize: Int) {
             return outputFeature0.floatArray
         }
 
-        fun getPredictModels(labels: List<String>, confidences: FloatArray): List<PredictModel> {
-            val predictModels = labels.map { PredictModel(label = it) }
+        fun getPredictModels(plantModels: List<PlantModel>, confidences: FloatArray): List<PredictModel> {
+            val predictModels = plantModels.map { PredictModel(label = it.name, description = it.des, listImgUrl = it.listImgUrl) }
             predictModels.withIndex().onEach { (index, model) ->
                 if (confidences.indices.contains(index)) {
                     model.confidence = confidences[index]
@@ -51,19 +52,27 @@ class ModelHelper(private val context: Context, private val imageSize: Int) {
             return predictModels
         }
 
-        fun getLabels(): List<String> {
+        fun getPlantModels(): List<PlantModel> {
             return listOf(
-                "Bạc hà","Bồ đề","Cà ri","Cải bẹ xanh","Chanh",
-                "Chùm ngây","Cỏ cà ri","Dâm bụt","Dền cơm","Hoàng hậu",
-                "Hương nhu","Lài trâu","Lựu","Mận lý","Mít",
-                "Mồng tơi","Nhài","Ổi","Riềng nếp","Siro",
-                "Tần lá dày","Trầu không","Trúc đào","Trứng cá","Vả",
-                "Vối rừng","Xoan Ấn Độ","Xoài","Đàn hương","Đậu dầu"
+                PlantModel(
+                    "Bạc hà",
+                    " Bạc hà là một loại rau gia vị, đồng thời là một vị thuốc rất phổ biến dùng chữa cảm sốt, cảm mạo, nhức đầu, kích thích tiêu hóa, giảm đau",
+                    arrayListOf(
+
+                    )
+                ),
+                PlantModel("Bồ đề", "Cây bồ đề là một loại cây có nguồn gốc từ Ấn Độ, là loại cây thiêng liêng gắn liền với Phật pháp. Đây là loại cây cảnh sân vườn được trồng phổ biến ở Việt Nam."),
+                PlantModel("Cà ri", "Cây cà ri còn gọi là curry hay Murraya koenigii là một loại cây có nguồn gốc từ Ấn Độ. Lá của loại cây này không chỉ có hương thơm đặc trưng mà còn có những công dụng thần kỳ đối với sức khỏe của con người."),
+                PlantModel("Cải bẹ xanh", ""),
+                PlantModel("Chanh", ""),
+                PlantModel("Chùm ngây", ""),
+                PlantModel("Cỏ cà ri", ""),
+                PlantModel("Dâm bụt", ""),
             )
         }
 
         return getPredictModels(
-            getLabels(), getConfidences()
+            getPlantModels(), getConfidences()
         ).sortedBy { it.confidence }.reversed()
     }
 }
