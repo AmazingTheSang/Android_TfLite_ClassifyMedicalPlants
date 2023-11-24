@@ -5,10 +5,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
-import com.example.android_tflite_classifymedicalplants.Adapter.PlantAdapter
+import com.example.android_tflite_classifymedicalplants.Adapter.PlantImageAdapter
+import com.example.android_tflite_classifymedicalplants.Adapter.UsesAdapter
 import com.example.android_tflite_classifymedicalplants.Model.PredictModel
-import com.example.android_tflite_classifymedicalplants.R
 import com.example.android_tflite_classifymedicalplants.databinding.PredictBottomSheetBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
@@ -18,6 +17,9 @@ class PredictModelBottomSheet : BottomSheetDialogFragment() {
 
     private var predictModel: PredictModel? = null
 
+    private lateinit var plantAdapter: PlantImageAdapter
+    private lateinit var usesAdapter: UsesAdapter
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -26,15 +28,20 @@ class PredictModelBottomSheet : BottomSheetDialogFragment() {
         _binding = PredictBottomSheetBinding.inflate(
             layoutInflater,
             container,
-            false)
+            false
+        )
         return binding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         updateAppearance()
-        val adapter = PlantAdapter(requireContext(), predictModel?.listImgUrl?.toMutableList() ?: mutableListOf())
-        binding?.gridView?.adapter = adapter
+        plantAdapter = PlantImageAdapter()
+        plantAdapter.updateData(predictModel?.listImgUrl?.toMutableList() ?: mutableListOf())
+        binding?.rcvPlantImages?.adapter = plantAdapter
+        usesAdapter = UsesAdapter()
+        binding?.rcvUses?.adapter = usesAdapter
+        usesAdapter.updateData(predictModel?.uses ?: listOf())
     }
 
 
@@ -47,9 +54,9 @@ class PredictModelBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
-    fun updateAppearance() {
+    private fun updateAppearance() {
         val model = predictModel ?: return
-        binding?.tvDescription?.text = model.description
+        binding?.tvDescription?.text = model.des
     }
 
     override fun onDestroyView() {
@@ -59,13 +66,8 @@ class PredictModelBottomSheet : BottomSheetDialogFragment() {
 
     companion object {
         private const val PREDICT_MODEL = "PREDICT_MODEL"
-        private val TAG = PredictModelBottomSheet::class.java.simpleName
-        fun newInstance(predictModel: PredictModel): PredictModelBottomSheet {
-            val fragment = PredictModelBottomSheet()
-            val bundles = Bundle()
-            bundles.putSerializable(PREDICT_MODEL, predictModel)
-            fragment.arguments = bundles
-            return fragment
+        fun newInstance(predictModel: PredictModel) = PredictModelBottomSheet().apply {
+            arguments = Bundle().apply { putSerializable(PREDICT_MODEL, predictModel) }
         }
     }
 }
