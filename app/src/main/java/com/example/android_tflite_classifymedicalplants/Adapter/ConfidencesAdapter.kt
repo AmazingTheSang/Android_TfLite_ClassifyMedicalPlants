@@ -48,8 +48,9 @@ class ConfidencesAdapter :
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         viewHolder.binding.tvLabel.text = dataSet[position].label
-        val percent = dataSet[position].confidence * 100
-        viewHolder.binding.tvPercent.text = "$percent%"
+//        val percent = dataSet[position].confidence * 100
+//        viewHolder.binding.tvPercent.text = "$percent%"
+        viewHolder.binding.tvPercent.visibility = View.INVISIBLE
         if (position == 0) {
             viewHolder.binding.tvPercent.text
         }

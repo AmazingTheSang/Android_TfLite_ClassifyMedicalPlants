@@ -62,4 +62,7 @@ dependencies {
     implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.31.0'
     implementation('org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.1')
     implementation('com.squareup.picasso:picasso:2.71828')
+    implementation 'com.squareup.retrofit2:retrofit:2.7.2'
+    implementation 'com.squareup.retrofit2:converter-gson:2.7.2'
+    implementation 'com.squareup.okhttp3:okhttp:3.6.0'
 }

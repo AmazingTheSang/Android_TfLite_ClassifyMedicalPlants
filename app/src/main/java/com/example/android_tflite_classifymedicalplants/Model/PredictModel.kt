@@ -10,5 +10,6 @@ class PredictModel(
     val des: String = "plant_des",
     val uses: List<String> = listOf(),
     val listImgUrl: List<String> = arrayListOf(),
+    val listUsedWith: List<PlantModel> = listOf(),
     var confidence: Float = 0f,
 ) : Serializable, Parcelable

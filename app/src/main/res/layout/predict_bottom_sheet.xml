@@ -6,11 +6,37 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <LinearLayout
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="10dp"
+        android:id="@+id/llName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical">
+
+        <TextView
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tên tiếng viêt:"
+            android:layout_marginBottom="20dp"
+            android:textColor="@color/color555555" />
+
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ten"
+            android:textColor="@color/color555555" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/tvPlantImages"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/llName"
         android:layout_marginTop="20dp"
         android:paddingHorizontal="10dp"
         android:text="Ảnh thực tế:"
@@ -55,11 +81,11 @@
         android:id="@+id/tvDes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_above="@id/tvDescription"
         android:layout_marginTop="20dp"
         android:paddingHorizontal="10dp"
-        android:text="Mô tả ngắn:"
+        android:text="Mô tả ngắn: "
         android:textSize="16sp"
-        android:layout_above="@id/tvDescription"
         android:textStyle="bold" />
 
     <TextView

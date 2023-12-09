@@ -42,6 +42,7 @@ class PredictModelBottomSheet : BottomSheetDialogFragment() {
         usesAdapter = UsesAdapter()
         binding?.rcvUses?.adapter = usesAdapter
         usesAdapter.updateData(predictModel?.uses ?: listOf())
+        binding?.tvName?.text = predictModel?.label
     }
 
 
