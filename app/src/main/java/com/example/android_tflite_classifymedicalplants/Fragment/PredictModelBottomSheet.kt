@@ -35,7 +35,7 @@ class PredictModelBottomSheet : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        updateAppearance()
+        binding?.tvDescription?.text = predictModel?.des
         plantAdapter = PlantImageAdapter()
         plantAdapter.updateData(predictModel?.listImgUrl?.toMutableList() ?: mutableListOf())
         binding?.rcvPlantImages?.adapter = plantAdapter
@@ -45,19 +45,8 @@ class PredictModelBottomSheet : BottomSheetDialogFragment() {
         binding?.tvName?.text = predictModel?.label
     }
 
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            if (it.containsKey(PREDICT_MODEL)) if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                predictModel = it.getSerializable(PREDICT_MODEL, PredictModel::class.java)
-            }
-        }
-    }
-
-    private fun updateAppearance() {
-        val model = predictModel ?: return
-        binding?.tvDescription?.text = model.des
+    fun updateData(predictModel: PredictModel) {
+        this.predictModel = predictModel
     }
 
     override fun onDestroyView() {
@@ -66,9 +55,6 @@ class PredictModelBottomSheet : BottomSheetDialogFragment() {
     }
 
     companion object {
-        private const val PREDICT_MODEL = "PREDICT_MODEL"
-        fun newInstance(predictModel: PredictModel) = PredictModelBottomSheet().apply {
-            arguments = Bundle().apply { putSerializable(PREDICT_MODEL, predictModel) }
-        }
+        fun newInstance() = PredictModelBottomSheet()
     }
 }

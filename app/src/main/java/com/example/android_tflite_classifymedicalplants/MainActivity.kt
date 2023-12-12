@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.provider.MediaStore
 import android.util.Log
+import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -39,7 +40,11 @@ open class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private lateinit var adapter: ConfidencesAdapter
+    private val predictBottomSheet = PredictModelBottomSheet.newInstance()
+
+    private var isBottomSheetShowing: Boolean = false
+
+//    private lateinit var adapter: ConfidencesAdapter
 
     private var resultLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -48,15 +53,12 @@ open class MainActivity : AppCompatActivity() {
                 val contentResolver = contentResolver
                 val imageUri = it.data?.data ?: return@registerForActivityResult
                 try {
-                    image = if (Build.VERSION.SDK_INT < 28) {
-                        MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
-                    } else {
-                        val source = ImageDecoder.createSource(contentResolver, imageUri)
-                        ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.RGBA_F16, true)
-                    } ?: return@registerForActivityResult
+                    val source = ImageDecoder.createSource(contentResolver, imageUri)
+                    image = ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.RGBA_F16, true)
                     val dimension = image.width.coerceAtMost(image.height)
                     image = ThumbnailUtils.extractThumbnail(image, dimension, dimension)
                     binding.imageView.setImageBitmap(image)
+                    showClearButton(image != null)
                     image = Bitmap.createScaledBitmap(image, imageSize, imageSize, true)
                     classifyImage(image)
                 } catch (e: Exception) {
@@ -65,26 +67,22 @@ open class MainActivity : AppCompatActivity() {
             }
         }
 
-    open fun getRealPathFromURI(contentURI: Uri?, context: Activity): String? {
-        val projection = arrayOf(MediaStore.Images.Media.DATA)
-        @Suppress("deprecation") val cursor = context.managedQuery(
-            contentURI, projection, null,
-            null, null
-        ) ?: return null
-        val column_index = cursor
-            .getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-        return if (cursor.moveToFirst()) {
-            // cursor.close();
-            cursor.getString(column_index)
-        } else null
-        // cursor.close();
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         inflate()
-        configRecycleView()
         setOnClickListeners()
+    }
+
+    private fun showClearButton(isShow: Boolean) {
+        if (isShow) {
+            binding.clearBtn.visibility = View.VISIBLE
+            binding.imageView.visibility = View.VISIBLE
+            binding.button.visibility = View.GONE
+        } else {
+            binding.clearBtn.visibility = View.GONE
+            binding.imageView.visibility = View.GONE
+            binding.button.visibility = View.VISIBLE
+        }
     }
 
     private fun inflate() {
@@ -93,23 +91,24 @@ open class MainActivity : AppCompatActivity() {
         setContentView(view)
     }
 
-    private fun configRecycleView() {
-        adapter = ConfidencesAdapter()
-        adapter.setListener(object : ConfidencesAdapterListener {
-            override fun onClick(item: PredictModel, position: Int) {
-                showBottomSheetDialog(item)
-            }
-        })
-        binding.rvConfidences.adapter = adapter
-    }
-
     private fun setOnClickListeners() {
-        binding.button.setOnClickListener {
+        fun openGallery() {
             if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                 openImageGallery()
             } else {
                 requestPermissions(arrayOf(Manifest.permission.CAMERA), 100)
             }
+        }
+        fun clearImage() {
+            binding.imageView.setImageResource(android.R.color.transparent)
+            showClearButton(false)
+        }
+
+        binding.button.setOnClickListener {
+            openGallery()
+        }
+        binding.clearBtn.setOnClickListener {
+            clearImage()
         }
     }
 
@@ -127,6 +126,14 @@ open class MainActivity : AppCompatActivity() {
         val filesDir: File = applicationContext.filesDir
         val imageFile = File(filesDir, "name" + ".jpg")
         val requestFile = RequestBody.create(MultipartBody.FORM, imageFile)
+        val plantModel = samplePlants[0]
+        val predictModel = PredictModel(
+            label = plantModel.name,
+            des = plantModel.des,
+            uses = plantModel.uses,
+            listImgUrl = plantModel.listImgUrl
+        )
+        showBottomSheetDialog(predictModel)
         try {
             val os: OutputStream = FileOutputStream(imageFile);
             image.compress(Bitmap.CompressFormat.JPEG, 100, os);
@@ -145,7 +152,6 @@ open class MainActivity : AppCompatActivity() {
                             uses = plantModel.uses,
                             listImgUrl = plantModel.listImgUrl
                         )
-                        adapter.updateData(listOf(predictModel))
                         showBottomSheetDialog(predictModel)
                     }
                 }
@@ -159,14 +165,10 @@ open class MainActivity : AppCompatActivity() {
         } catch ( e: Exception) {
             Log.e("Sang", "Error writing bitmap", e);
         }
-
-//        val predictModels = ModelHelper(applicationContext, imageSize).classifyImage(image)
-//        adapter.updateData(predictModels)
     }
 
     private fun showBottomSheetDialog(item: PredictModel) {
-        adapter.updateData(listOf())
-        val blankFragment = PredictModelBottomSheet.newInstance(item)
-        blankFragment.show(supportFragmentManager, blankFragment.tag)
+        predictBottomSheet.updateData(item)
+        predictBottomSheet.show(supportFragmentManager, predictBottomSheet.tag)
     }
 }
