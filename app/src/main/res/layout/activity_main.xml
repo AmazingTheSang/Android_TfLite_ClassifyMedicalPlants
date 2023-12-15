@@ -17,11 +17,42 @@
         android:background="@color/white">
 
         <ImageView
-            android:visibility="gone"
             android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerHorizontal="true" />
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="200dp"
+            android:visibility="visible" />
+
+        <LinearLayout
+            android:id="@+id/llPredict"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="100dp">
+
+            <ProgressBar
+                android:id="@+id/loadView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/colorGreen"
+                android:indeterminateTintMode="src_atop"
+                android:progressTint="@color/colorGreen"
+                android:visibility="gone" />
+
+            <TextView
+                android:layout_gravity="center"
+                android:id="@+id/tvPredictName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorGreen"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
 
         <LinearLayout
             android:id="@+id/button"
@@ -34,7 +65,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:background="@color/light_gray"
                 android:paddingVertical="8dp"
                 android:src="@drawable/ic_action_name" />
 
@@ -44,13 +74,12 @@
                 android:layout_gravity="center"
                 android:paddingHorizontal="8dp"
                 android:text="Add an image"
-                android:textColor="@color/color555555"
+                android:textColor="@color/color20"
                 android:textSize="16sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
         <ImageButton
-            android:visibility="gone"
             android:id="@+id/clearBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -58,7 +87,8 @@
             android:layout_alignParentEnd="true"
             android:layout_marginTop="10dp"
             android:background="@color/white"
-            android:src="@drawable/ic_clear" />
+            android:src="@drawable/ic_clear"
+            android:visibility="gone" />
     </RelativeLayout>
 
 </RelativeLayout>

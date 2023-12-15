@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import com.example.android_tflite_classifymedicalplants.Model.PlantModel
 import com.example.android_tflite_classifymedicalplants.Model.PredictModel
+import com.example.android_tflite_classifymedicalplants.Model.RemedyModel
 import com.example.android_tflite_classifymedicalplants.ml.Model
 import com.example.android_tflite_classifymedicalplants.samplePlants
 import org.tensorflow.lite.DataType
@@ -52,7 +53,7 @@ class ModelHelper(private val context: Context, private val imageSize: Int) {
                     label = it.name,
                     des = it.des,
                     listImgUrl = it.listImgUrl,
-                    uses = it.uses
+                    uses = it.uses.map { RemedyModel(name = it) }
                 )
             }
             predictModels.withIndex().onEach { (index, model) ->

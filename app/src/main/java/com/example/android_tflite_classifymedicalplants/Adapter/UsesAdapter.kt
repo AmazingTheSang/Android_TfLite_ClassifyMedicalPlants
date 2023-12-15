@@ -9,19 +9,20 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.android_tflite_classifymedicalplants.Model.PredictModel
+import com.example.android_tflite_classifymedicalplants.Model.RemedyModel
 import com.example.android_tflite_classifymedicalplants.R
 import com.example.android_tflite_classifymedicalplants.databinding.ItemConfidenceBinding
 import com.example.android_tflite_classifymedicalplants.databinding.ItemUsesBinding
 import com.squareup.picasso.Picasso
 
 interface UsesAdapterListener {
-    fun onClick(item: String, position: Int)
+    fun onClick(item: RemedyModel, position: Int)
 }
 
 class UsesAdapter :
     RecyclerView.Adapter<UsesAdapter.ViewHolder>() {
 
-    private var dataSet: List<String> = listOf()
+    private var dataSet: List<RemedyModel> = listOf()
 
     private var listener: UsesAdapterListener? = null
 
@@ -30,7 +31,7 @@ class UsesAdapter :
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(dataSet: List<String>) {
+    fun updateData(dataSet: List<RemedyModel>) {
         this.dataSet = dataSet
         notifyDataSetChanged()
     }
@@ -51,7 +52,7 @@ class UsesAdapter :
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        viewHolder.binding.tvLabel.text = dataSet[position]
+        viewHolder.binding.tvLabel.text = dataSet[position].name
     }
 
     override fun getItemCount() = dataSet.size

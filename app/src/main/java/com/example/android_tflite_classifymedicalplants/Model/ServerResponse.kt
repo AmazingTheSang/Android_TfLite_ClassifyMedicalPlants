@@ -23,13 +23,4 @@ class ServerResponse {
 
     private val images: List<String> = listOf()
 
-    fun toPredicModel(): PredictModel {
-        return PredictModel(
-            name,
-            des = family,
-            uses = uses.split(", ").map { it.replaceFirstChar(Char::titlecase) },
-            listImgUrl = images,
-            confidence = 0.9f
-        )
-    }
 }
