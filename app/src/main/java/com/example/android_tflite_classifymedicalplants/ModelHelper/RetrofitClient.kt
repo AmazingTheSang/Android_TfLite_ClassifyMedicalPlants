@@ -14,15 +14,17 @@ import retrofit2.http.Part
 import retrofit2.http.QueryMap
 
 const val BASE_URL = "http://django.doannhat2.click:8000/"
+
 interface API {
     @Multipart
     @POST("upload-image/")
-    public fun getImageClass(@Part image: MultipartBody.Part ): Call<List<ServerResponse>?>?
+    fun getImageClass(@Part image: MultipartBody.Part): Call<List<ServerResponse>?>?
 
     companion object {
 
     }
 }
+
 class RetrofitClient private constructor() {
     val myApi: API
 

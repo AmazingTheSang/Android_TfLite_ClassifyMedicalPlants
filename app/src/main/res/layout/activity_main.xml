@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+
     tools:context=".MainActivity">
 
     <RelativeLayout
@@ -44,10 +45,10 @@
                 android:visibility="gone" />
 
             <TextView
-                android:layout_gravity="center"
                 android:id="@+id/tvPredictName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:textColor="@color/colorGreen"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -91,4 +92,8 @@
             android:visibility="gone" />
     </RelativeLayout>
 
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/plant_detail_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </RelativeLayout>

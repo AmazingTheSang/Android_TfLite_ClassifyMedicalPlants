@@ -5,20 +5,18 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.ImageDecoder
 import android.media.ThumbnailUtils
 import android.os.Bundle
-import android.os.Handler
 import android.os.Parcelable
 import android.util.Log
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.example.android_tflite_classifymedicalplants.Fragment.PredictModelBottomSheet
+import androidx.fragment.app.commit
+import com.example.android_tflite_classifymedicalplants.Fragment.PlantDetailFragment
 import com.example.android_tflite_classifymedicalplants.Model.PredictModel
-import com.example.android_tflite_classifymedicalplants.Model.RemedyModel
 import com.example.android_tflite_classifymedicalplants.Model.ServerResponse
 import com.example.android_tflite_classifymedicalplants.ModelHelper.RetrofitClient
 import com.example.android_tflite_classifymedicalplants.databinding.ActivityMainBinding
@@ -30,21 +28,17 @@ import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
-import java.util.Timer
 
 
 open class MainActivity : AppCompatActivity() {
-    private var imageSize = 200
+
+    private var IMAGE_SIZE = 200
 
     private lateinit var binding: ActivityMainBinding
 
-    private val predictBottomSheet = PredictModelBottomSheet.newInstance()
-
-    private var isBottomSheetShowing: Boolean = false
+    private val plantDetailFragment = PlantDetailFragment.newInstance()
 
     private var predictModel: PredictModel? = null
-
-//    private lateinit var adapter: ConfidencesAdapter
 
     private var resultLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -59,7 +53,7 @@ open class MainActivity : AppCompatActivity() {
                     image = ThumbnailUtils.extractThumbnail(image, dimension, dimension)
                     binding.imageView.setImageBitmap(image)
                     showClearButton(image != null)
-                    image = Bitmap.createScaledBitmap(image, imageSize, imageSize, true)
+                    image = Bitmap.createScaledBitmap(image, IMAGE_SIZE, IMAGE_SIZE, true)
                     classifyImage(image)
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -74,21 +68,32 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun showClearButton(isShow: Boolean) {
-        if (isShow) {
+        fun showClearBtn() {
             binding.clearBtn.visibility = View.VISIBLE
             binding.imageView.visibility = View.VISIBLE
             binding.button.visibility = View.GONE
-        } else {
+        }
+
+        fun showAddBtn() {
             binding.clearBtn.visibility = View.GONE
             binding.imageView.visibility = View.GONE
             binding.button.visibility = View.VISIBLE
         }
+
+        if (isShow) {
+            showClearBtn()
+        } else {
+            showAddBtn()
+        }
     }
 
     private fun inflate() {
+        initBinding()
+        setContentView(binding.root)
+    }
+
+    private fun initBinding() {
         binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
     }
 
     private fun setOnClickListeners() {
@@ -137,62 +142,61 @@ open class MainActivity : AppCompatActivity() {
         binding.tvPredictName.text = if (isLoad) {
             "waiting for response..."
         } else {
-           null
+            null
         }
     }
 
-        private fun classifyImage(image: Bitmap) {
-            val filesDir: File = applicationContext.filesDir
-            val imageFile = File(filesDir, "name" + ".jpg")
-            val requestFile = RequestBody.create(MultipartBody.FORM, imageFile)
-            val plantModel = samplePlants[0]
-            val predictModel = PredictModel(
-                label = plantModel.name,
-                avatar = image,
-                des = plantModel.des,
-                uses = plantModel.uses.map { RemedyModel(name = it) },
-                listImgUrl = plantModel.listImgUrl
+    private fun classifyImage(image: Bitmap) {
+        val filesDir: File = applicationContext.filesDir
+        val imageFile = File(filesDir, "name" + ".jpg")
+        val requestFile = RequestBody.create(MultipartBody.FORM, imageFile)
+        toggleLoad(true)
+        try {
+            val os: OutputStream = FileOutputStream(imageFile);
+            image.compress(Bitmap.CompressFormat.JPEG, 100, os);
+            val body = MultipartBody.Part.createFormData("image", imageFile.name, requestFile)
+            val call: Call<List<ServerResponse>?>? =
+                RetrofitClient.instance?.myApi?.getImageClass(body)
+            call?.enqueue(object : Callback<List<ServerResponse>?> {
+                override fun onResponse(
+                    call: Call<List<ServerResponse>?>,
+                    response: Response<List<ServerResponse>?>
+                ) {
+                    response.body()?.firstOrNull()?.let { res ->
+                            toggleLoad(false)
+                            val plantModel =
+                                samplePlants.find { it.name.lowercase() == res.name.lowercase() }
+                                    ?: return
+                            val predictModel = PredictModel(
+                                label = plantModel.name,
+                                des = plantModel.des,
+                                uses = plantModel.uses,
+                            )
+                            this@MainActivity.predictModel = predictModel
+                            binding.tvPredictName.text = predictModel.label
+                    }
+                }
+
+                override fun onFailure(call: Call<List<ServerResponse>?>, t: Throwable) {
+                    print("sang")
+                }
+            })
+            os.flush();
+            os.close();
+        } catch (e: Exception) {
+            Log.e("Sang", "Error writing bitmap", e);
+        }
+    }
+
+    private fun showBottomSheetDialog(item: PredictModel) {
+        plantDetailFragment.updateData(item)
+        supportFragmentManager.commit {
+            setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.slide_out
             )
-            this.binding.tvPredictName.text = predictModel.label.uppercase()
-            this.predictModel = predictModel
-            try {
-                val os: OutputStream = FileOutputStream(imageFile);
-                image.compress(Bitmap.CompressFormat.JPEG, 100, os);
-                val body = MultipartBody.Part.createFormData("image", imageFile.name, requestFile)
-                val call: Call<List<ServerResponse>?>? =
-                    RetrofitClient.instance?.myApi?.getImageClass(body)
-                call?.enqueue(object : Callback<List<ServerResponse>?> {
-                    override fun onResponse(
-                        call: Call<List<ServerResponse>?>,
-                        response: Response<List<ServerResponse>?>
-                    ) {
-                        response.body()?.firstOrNull()?.let { res ->
-//                            val plantModel =
-//                                samplePlants.find { it.name.lowercase() == res.name.lowercase() }
-//                                    ?: return
-//                            val predictModel = PredictModel(
-//                                label = plantModel.name,
-//                                des = plantModel.des,
-//                                uses = plantModel.uses.map { RemedyModel(name = it) },
-//                                listImgUrl = plantModel.listImgUrl
-//                            )
-//                            showBottomSheetDialog(predictModel)
-                        }
-                    }
-
-                    override fun onFailure(call: Call<List<ServerResponse>?>, t: Throwable) {
-                        print("sang")
-                    }
-                })
-                os.flush();
-                os.close();
-            } catch (e: Exception) {
-                Log.e("Sang", "Error writing bitmap", e);
-            }
-        }
-
-        private fun showBottomSheetDialog(item: PredictModel) {
-            predictBottomSheet.updateData(item)
-            predictBottomSheet.show(supportFragmentManager, predictBottomSheet.tag)
+            add(R.id.plant_detail_fragment, plantDetailFragment,)
+            addToBackStack(null)
         }
     }
+}

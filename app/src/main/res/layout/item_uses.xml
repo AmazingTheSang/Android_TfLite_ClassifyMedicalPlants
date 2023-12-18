@@ -10,13 +10,13 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:layout_toStartOf="@id/tvXem"
+        android:layout_toStartOf="@id/tvViewRemedy"
         android:text="Label"
         android:textColor="@color/color20"
         android:textSize="14sp" />
 
     <TextView
-        android:id="@+id/tvXem"
+        android:id="@+id/tvViewRemedy"
         android:text="Xem bài thuốc"
         android:textColor="@color/color20"
         android:layout_width="wrap_content"

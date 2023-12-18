@@ -1,23 +1,50 @@
 package com.example.android_tflite_classifymedicalplants.Fragment
 
-import android.content.Context
 import android.os.Bundle
-import android.os.PersistableBundle
-import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
-import com.example.android_tflite_classifymedicalplants.databinding.ActivityMainBinding
-import com.example.android_tflite_classifymedicalplants.databinding.PredictBottomSheetBinding
+import androidx.fragment.app.Fragment
+import com.example.android_tflite_classifymedicalplants.ItemView.ListedItem
+import com.example.android_tflite_classifymedicalplants.Model.RemedyModel
+import com.example.android_tflite_classifymedicalplants.R
 import com.example.android_tflite_classifymedicalplants.databinding.RemedyFragmentBinding
 
-class RemedyFragment:  AppCompatActivity() {
-    private lateinit var binding: RemedyFragmentBinding
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
-        binding = RemedyFragmentBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+class RemedyFragment: Fragment(R.layout.remedy_fragment) {
+    private lateinit var _binding: RemedyFragmentBinding
+    private val binding get() = _binding
+
+    private lateinit var remedyModel: RemedyModel
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = RemedyFragmentBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    fun updateData(remedyModel: RemedyModel) {
+        this.remedyModel = remedyModel
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        generateListedView()
+    }
+
+    private fun generateListedView() {
+        context?.let {
+            for(plant in remedyModel.ingredients) {
+                val listedItem = ListedItem(it)
+                listedItem.text = plant
+                binding.rvIngredient.addView(listedItem)
+            }
+        }
+    }
+
+    companion object {
+        fun newInstance() = RemedyFragment()
     }
 }

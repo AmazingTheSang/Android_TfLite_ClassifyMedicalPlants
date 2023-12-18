@@ -1,22 +1,21 @@
 package com.example.android_tflite_classifymedicalplants.Fragment
 
-import android.content.Intent
-import android.os.Build
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.android_tflite_classifymedicalplants.Adapter.PlantImageAdapter
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import com.example.android_tflite_classifymedicalplants.Adapter.UsesAdapter
 import com.example.android_tflite_classifymedicalplants.Adapter.UsesAdapterListener
-import com.example.android_tflite_classifymedicalplants.MainActivity
 import com.example.android_tflite_classifymedicalplants.Model.PredictModel
 import com.example.android_tflite_classifymedicalplants.Model.RemedyModel
-import com.example.android_tflite_classifymedicalplants.databinding.PredictBottomSheetBinding
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.example.android_tflite_classifymedicalplants.R
+import com.example.android_tflite_classifymedicalplants.databinding.PlantDetailFragmentBinding
 
-class PredictModelBottomSheet : BottomSheetDialogFragment() {
-    private var _binding: PredictBottomSheetBinding? = null
+class PlantDetailFragment : Fragment(R.layout.plant_detail_fragment) {
+    private var _binding: PlantDetailFragmentBinding? = null
     private val binding get() = _binding
 
     private var predictModel: PredictModel? = null
@@ -28,7 +27,7 @@ class PredictModelBottomSheet : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = PredictBottomSheetBinding.inflate(
+        _binding = PlantDetailFragmentBinding.inflate(
             layoutInflater,
             container,
             false
@@ -38,16 +37,45 @@ class PredictModelBottomSheet : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding?.tvDescription?.text = predictModel?.des
-        usesAdapter = UsesAdapter()
+        configRvUse()
+        updateStrings()
+        setPlantImage()
+        setListener()
+    }
+
+    private fun configRvUse() {
+        fun makeUseAdapter() {
+            usesAdapter = UsesAdapter()
+            usesAdapter.updateData(predictModel?.uses ?: listOf())
+        }
+
+        makeUseAdapter()
         binding?.rvUses?.adapter = usesAdapter
-        usesAdapter.updateData(predictModel?.uses ?: listOf())
+    }
+
+    private fun setPlantImage() {
+        binding?.imvPlant?.setImageResource(predictModel?.image ?: return)
+    }
+
+    private fun updateStrings() {
+        binding?.tvDescription?.text = predictModel?.des
         binding?.tvName?.text = predictModel?.label
-        binding?.imvPlant?.setImageBitmap(predictModel?.avatar)
+        binding?.imvPlant?.setImageResource(R.drawable.mint)
+    }
+
+    private fun setListener() {
         usesAdapter.setListener(object : UsesAdapterListener {
             override fun onClick(item: RemedyModel, position: Int) {
-                val intent = Intent(context, RemedyFragment::class.java)
-                startActivity(intent)
+                val remedyFragment = RemedyFragment.newInstance()
+                remedyFragment.updateData(item)
+                childFragmentManager.commit {
+                    setCustomAnimations(
+                        R.anim.slide_in,
+                        R.anim.slide_out
+                    )
+                    add(R.id.remedy_fragment, remedyFragment)
+                    addToBackStack(null)
+                }
             }
         })
     }
@@ -62,6 +90,6 @@ class PredictModelBottomSheet : BottomSheetDialogFragment() {
     }
 
     companion object {
-        fun newInstance() = PredictModelBottomSheet()
+        fun newInstance() = PlantDetailFragment()
     }
 }

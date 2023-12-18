@@ -52,8 +52,7 @@ class ModelHelper(private val context: Context, private val imageSize: Int) {
                 PredictModel(
                     label = it.name,
                     des = it.des,
-                    listImgUrl = it.listImgUrl,
-                    uses = it.uses.map { RemedyModel(name = it) }
+                    uses = it.uses
                 )
             }
             predictModels.withIndex().onEach { (index, model) ->
