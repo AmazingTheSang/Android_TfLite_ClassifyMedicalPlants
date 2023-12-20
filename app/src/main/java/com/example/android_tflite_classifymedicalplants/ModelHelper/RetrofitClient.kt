@@ -1,5 +1,6 @@
 package com.example.android_tflite_classifymedicalplants.ModelHelper
 
+import com.example.android_tflite_classifymedicalplants.Model.MLServerResponse
 import com.example.android_tflite_classifymedicalplants.Model.ServerResponse
 import com.google.android.gms.common.api.Api
 import okhttp3.MultipartBody
@@ -18,7 +19,7 @@ const val BASE_URL = "http://django.doannhat2.click:8000/"
 interface API {
     @Multipart
     @POST("upload-image/")
-    fun getImageClass(@Part image: MultipartBody.Part): Call<List<ServerResponse>?>?
+    fun getImageClass(@Part image: MultipartBody.Part): Call<MLServerResponse?>?
 
     companion object {
 

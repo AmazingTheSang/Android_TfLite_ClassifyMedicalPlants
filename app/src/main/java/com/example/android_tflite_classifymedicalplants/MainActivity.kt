@@ -16,6 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import com.example.android_tflite_classifymedicalplants.Fragment.PlantDetailFragment
+import com.example.android_tflite_classifymedicalplants.Model.MLServerResponse
 import com.example.android_tflite_classifymedicalplants.Model.PredictModel
 import com.example.android_tflite_classifymedicalplants.Model.ServerResponse
 import com.example.android_tflite_classifymedicalplants.ModelHelper.RetrofitClient
@@ -119,7 +120,7 @@ open class MainActivity : AppCompatActivity() {
         }
 
         binding.tvPredictName.setOnClickListener {
-            showBottomSheetDialog(this.predictModel ?: return@setOnClickListener)
+//            showBottomSheetDialog(this.predictModel ?: return@setOnClickListener)
         }
     }
 
@@ -155,36 +156,28 @@ open class MainActivity : AppCompatActivity() {
             val os: OutputStream = FileOutputStream(imageFile);
             image.compress(Bitmap.CompressFormat.JPEG, 100, os);
             val body = MultipartBody.Part.createFormData("image", imageFile.name, requestFile)
-            val call: Call<List<ServerResponse>?>? =
+            val call: Call<MLServerResponse?>? =
                 RetrofitClient.instance?.myApi?.getImageClass(body)
-            call?.enqueue(object : Callback<List<ServerResponse>?> {
+            call?.enqueue(object : Callback<MLServerResponse?> {
                 override fun onResponse(
-                    call: Call<List<ServerResponse>?>,
-                    response: Response<List<ServerResponse>?>
+                    call: Call<MLServerResponse?>,
+                    response: Response<MLServerResponse?>
                 ) {
-                    response.body()?.firstOrNull()?.let { res ->
-                            toggleLoad(false)
-                            val plantModel =
-                                samplePlants.find { it.name.lowercase() == res.name.lowercase() }
-                                    ?: return
-                            val predictModel = PredictModel(
-                                label = plantModel.name,
-                                des = plantModel.des,
-                                uses = plantModel.uses,
-                            )
-                            this@MainActivity.predictModel = predictModel
-                            binding.tvPredictName.text = predictModel.label
-                    }
+                    toggleLoad(false)
+                    binding.tvPredictName.text = response.body()?.name?.lowercase()
                 }
 
-                override fun onFailure(call: Call<List<ServerResponse>?>, t: Throwable) {
-                    print("sang")
+                override fun onFailure(call: Call<MLServerResponse?>, t: Throwable) {
+                    toggleLoad(false)
+                    binding.tvPredictName.text = "Unknown"
                 }
             })
             os.flush();
             os.close();
         } catch (e: Exception) {
             Log.e("Sang", "Error writing bitmap", e);
+            toggleLoad(false)
+            binding.tvPredictName.text = "Unknown"
         }
     }
 
